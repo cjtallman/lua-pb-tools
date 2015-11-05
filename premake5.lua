@@ -45,13 +45,15 @@ solution("protobuf")
     local copyCmd = '(robocopy "%s" "%s" %s) ^& IF %%ERRORLEVEL%% LEQ 1 SET ERRORLEVEL=0 '; -- Eat Robocopy return codes.
     postbuildcommands
     {
-        copyCmd:format("../" .. gitdir .. "/protobuf", "../compiled/protobuf", "*.lua");
-        copyCmd:format("../" .. luadir, "../compiled", luaVer..".exe " .. luaVer..".dll");
         "{DELETE} %{cfg.targetdir}/pb.lib"; -- I can't figure out how to not make these, so let's just delete them.
         "{DELETE} %{cfg.targetdir}/pb.exp"; -- ""
+        copyCmd:format("../" .. luadir, "../compiled/example", luaVer..".exe " .. luaVer..".dll");
+        copyCmd:format("../example", "../compiled/example", "");
+        copyCmd:format("../" .. gitdir .. "/protobuf", "../compiled/protobuf", "*.lua");
         copyCmd:format("../" .. gitdir .. "/plugin", "../compiled/plugin", "protoc-gen-lua plugin_*");
         copyCmd:format("../" .. gitdir .. "/", "../compiled", "protoc.exe");
-        "ECHO @python plugin/protoc-gen-lua > ../compiled/plugin/lua_out.bat";
-        "ECHO protoc --lua_out=./ --plugin=protoc-gen-lua=plugin\\lua_out.bat %%* > ../compiled/compile_proto.bat";
-        copyCmd:format("../" .. gitdir .. "/example", "../compiled/example", "");
+        copyCmd:format("../" .. gitdir .. "/example", "../compiled", "*.proto");
+        "ECHO @python plugin/protoc-gen-lua> ../compiled/plugin/lua_out.bat";
+        "ECHO @ECHO OFF>> ../compiled/compile_proto.bat";
+        "ECHO protoc --lua_out=./ --plugin=protoc-gen-lua=plugin\\lua_out.bat %%*>> ../compiled/compile_proto.bat";
     }
